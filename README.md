@@ -1,6 +1,6 @@
 # neurogenesis-cre
 Integration of neurogenesis for continual relation extraction
-## Usage and Samples.
+## Usage and Samples
 
 ## Folder Hierarchy
 
