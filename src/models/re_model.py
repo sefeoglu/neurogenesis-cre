@@ -6,6 +6,9 @@ import torch.optim as optim
 import torch.nn.functional as F 
 
 class REModel(nn.Module):
+    """
+    Relation Extraction model
+    """
     def __init__(self, input_dim, output_dim):
         super().__init__()
         self.fc = nn.Linear(input_dim, output_dim)
@@ -36,7 +39,7 @@ class REModel(nn.Module):
 
     def predict_proba(self, x):
         return self(x)
-        
+
     def predict_proba_numpy(self, x):
         return self(x).detach().numpy()
 
