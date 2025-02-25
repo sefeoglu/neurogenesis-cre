@@ -27,11 +27,12 @@ class Trainer(object):
         self.load_embedding()
 
 
-    def data_cleaning(self):
+    def data_cleaning(self, text):
         """
         Clean data and remove unwanted characters
+
         """
-        pass
+        return text.replace('( )', '').rstrip().lstrip()
 
     def load_data(self, dataset_id):
 
@@ -58,19 +59,20 @@ class Trainer(object):
         output_embedding = self.bert_model(**encoded_input)
         return output_embedding
 
-    def input_prepation(self, data):
+    def input_prepation(self, item):
         """
         Prepare input for training and compute model embeddings
         """
+        # print("Data: ", item)
         input = dict()
-        input['sentence'] = data['sentence']
-        input['entity1'] = data['entity1']
-        input['entity2'] = data['entity2']
-        input['relation'] = data['relation']
-        input['sentence_embedding'] = self.get_embeddings(self.tokenize(data['sentence']))
-        input['entity1_embedding'] = self.get_embeddings(self.tokenize(data['entity1']))
-        input['entity2_embedding'] = self.get_embeddings(self.tokenize(data['entity2']))
-        input['relation_embedding'] = self.get_embeddings(self.tokenize(data['relation']))
+        input['sentence'] = self.data_cleaning(item['sentence'])
+        input['entity1'] = item['entity1']
+        input['entity2'] = item['entity2']
+        input['relation'] = item['relation']
+        input['sentence_embedding'] = self.get_embeddings(self.tokenize(item['sentence']))
+        input['entity1_embedding'] = self.get_embeddings(self.tokenize(item['entity1']))
+        input['entity2_embedding'] = self.get_embeddings(self.tokenize(item['entity2']))
+        input['relation_embedding'] = self.get_embeddings(self.tokenize(item['relation']))
         
         return input
     
@@ -80,42 +82,43 @@ class Trainer(object):
         """
         task_data = dataset['train'][run_id]['data'][task_id]['samples']
         return task_data
+
+
     def get_clean_data(self, dataset):
         """
         Clean data and remove unwanted characters
         """
         train_data_emb = []
-        for data in dataset:
-            # print("Data: ", d)
-            data = data['data']
+        
+        for i, data in enumerate(dataset):
 
-            # sentence = data['sentence']
-            # entity1 = data['entity1']
-            # entity2 = data['entity2']
-            # relation_type = data['relation']
-            # print("entity1: ", entity1)
-            # print("entity2: ", entity2)
-            # print("relation: ", relation_type)
-            # print("sentence: ", sentence)
+            item = data['data']
 
-            _input = self.input_prepation(data)
-            print("Input: ", _input)
+            _input = self.input_prepation(item)
+
             train_data_emb.append(_input)
+   
         return train_data_emb
 
-    def train(self):
-        # load data
-        self.train_data = self.load_data(self.train_path)
-        self.task_data = self.prepare_task_data(self.train_data, 0, 0)
-        # print("Task data: ", self.task_data)
-        train_emb = self.get_clean_data(self.task_data)
+    def train(self, run_id=0, task_id=0):
 
+        # load data
+        print("Loading data...")
+        self.train_data = self.load_data(self.train_path)
+        self.task_data = self.prepare_task_data(self.train_data, run_id, task_id)
+
+        # print("Task data: ", self.task_data)
+        print("Data loaded successfully")
+        print("prepare data for training...")
 
         # tokenize data
-
-
         # get embeddings
+        train_emb = self.get_clean_data(self.task_data)
+        
+        print("Train data: ", train_emb)
+        
         # train model
+
         # evaluate
         # save model
     
