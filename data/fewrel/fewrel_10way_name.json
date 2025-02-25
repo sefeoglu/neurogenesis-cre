@@ -1,0 +1,582 @@
+[
+    {
+        "run_1": [
+            {
+                "task1": [
+                    "mountain range",
+                    "taxon rank",
+                    "performer",
+                    "developer",
+                    "licensed to broadcast to",
+                    "military rank",
+                    "occupant",
+                    "mother",
+                    "participant",
+                    "manufacturer"
+                ]
+            },
+            {
+                "task2": [
+                    "applies to jurisdiction",
+                    "operator",
+                    "constellation",
+                    "residence",
+                    "successful candidate",
+                    "country of citizenship",
+                    "operator",
+                    "contains administrative territorial entity",
+                    "said to be the same as",
+                    "mouth of the watercourse"
+                ]
+            },
+            {
+                "task3": [
+                    "sibling",
+                    "located in the administrative territorial entity",
+                    "headquarters location",
+                    "location",
+                    "after a work by",
+                    "occupation",
+                    "participating team",
+                    "notable work",
+                    "genre",
+                    "sports season of league or competition"
+                ]
+            },
+            {
+                "task4": [
+                    "located in or next to body of water",
+                    "follows",
+                    "competition class",
+                    "architect",
+                    "work location",
+                    "architect",
+                    "member of political party",
+                    "league",
+                    "operating system",
+                    "field of work"
+                ]
+            },
+            {
+                "task5": [
+                    "crosses",
+                    "spouse",
+                    "part of",
+                    "head of government",
+                    "father",
+                    "position played on team / speciality",
+                    "language of work or name",
+                    "original network",
+                    "place served by transport hub",
+                    "participant of"
+                ]
+            },
+            {
+                "task6": [
+                    "country of origin",
+                    "location of formation",
+                    "nominated for",
+                    "characters",
+                    "heritage designation",
+                    "military branch",
+                    "record label",
+                    "child",
+                    "member of",
+                    "religion"
+                ]
+            },
+            {
+                "task7": [
+                    "director",
+                    "owned by",
+                    "owned by",
+                    "winner",
+                    "owned by",
+                    "director",
+                    "located on terrain feature",
+                    "subsidiary",
+                    "movement",
+                    "screenwriter"
+                ]
+            },
+            {
+                "task8": [
+                    "instance of",
+                    "main subject",
+                    "composer",
+                    "platform",
+                    "main subject",
+                    "voice type",
+                    "followed by",
+                    "publisher",
+                    "composer",
+                    "original language of film or TV show"
+                ]
+            }
+        ]
+    },
+    {
+        "run_2": [
+            {
+                "task1": [
+                    "participant of",
+                    "characters",
+                    "participant of",
+                    "subsidiary",
+                    "contains administrative territorial entity",
+                    "owned by",
+                    "subsidiary",
+                    "residence",
+                    "league",
+                    "genre"
+                ]
+            },
+            {
+                "task2": [
+                    "movement",
+                    "location",
+                    "heritage designation",
+                    "occupation",
+                    "military branch",
+                    "military rank",
+                    "notable work",
+                    "manufacturer",
+                    "after a work by",
+                    "manufacturer"
+                ]
+            },
+            {
+                "task3": [
+                    "located on terrain feature",
+                    "position held",
+                    "position played on team / speciality",
+                    "director",
+                    "crosses",
+                    "original network",
+                    "sibling",
+                    "member of",
+                    "main subject",
+                    "member of political party"
+                ]
+            },
+            {
+                "task4": [
+                    "country of origin",
+                    "operating system",
+                    "child",
+                    "sports season of league or competition",
+                    "participating team",
+                    "licensed to broadcast to",
+                    "located in the administrative territorial entity",
+                    "participant",
+                    "sport",
+                    "followed by"
+                ]
+            },
+            {
+                "task5": [
+                    "headquarters location",
+                    "location of formation",
+                    "original language of film or TV show",
+                    "father",
+                    "publisher",
+                    "headquarters location",
+                    "follows",
+                    "original language of film or TV show",
+                    "head of government",
+                    "follows"
+                ]
+            },
+            {
+                "task6": [
+                    "applies to jurisdiction",
+                    "work location",
+                    "successful candidate",
+                    "place served by transport hub",
+                    "said to be the same as",
+                    "competition class",
+                    "language of work or name",
+                    "screenwriter",
+                    "part of",
+                    "has part"
+                ]
+            },
+            {
+                "task7": [
+                    "mother",
+                    "constellation",
+                    "mountain range",
+                    "country of citizenship",
+                    "spouse",
+                    "occupant",
+                    "mountain range",
+                    "field of work",
+                    "spouse",
+                    "performer"
+                ]
+            },
+            {
+                "task8": [
+                    "instance of",
+                    "religion",
+                    "operator",
+                    "instrument",
+                    "taxon rank",
+                    "instance of",
+                    "instrument",
+                    "winner",
+                    "winner",
+                    "platform"
+                ]
+            }
+        ]
+    },
+    {
+        "run_3": [
+            {
+                "task1": [
+                    "publisher",
+                    "original network",
+                    "said to be the same as",
+                    "member of political party",
+                    "located in or next to body of water",
+                    "participating team",
+                    "said to be the same as",
+                    "position played on team / speciality",
+                    "followed by",
+                    "distributor"
+                ]
+            },
+            {
+                "task2": [
+                    "religion",
+                    "original language of film or TV show",
+                    "located in the administrative territorial entity",
+                    "manufacturer",
+                    "place served by transport hub",
+                    "original language of film or TV show",
+                    "father",
+                    "performer",
+                    "licensed to broadcast to",
+                    "headquarters location"
+                ]
+            },
+            {
+                "task3": [
+                    "director",
+                    "heritage designation",
+                    "sports season of league or competition",
+                    "screenwriter",
+                    "characters",
+                    "follows",
+                    "taxon rank",
+                    "position held",
+                    "sports season of league or competition",
+                    "military branch"
+                ]
+            },
+            {
+                "task4": [
+                    "competition class",
+                    "spouse",
+                    "applies to jurisdiction",
+                    "main subject",
+                    "located on terrain feature",
+                    "field of work",
+                    "part of",
+                    "platform",
+                    "part of",
+                    "head of government"
+                ]
+            },
+            {
+                "task5": [
+                    "instance of",
+                    "subsidiary",
+                    "instance of",
+                    "sibling",
+                    "successful candidate",
+                    "notable work",
+                    "voice type",
+                    "operator",
+                    "tributary",
+                    "country"
+                ]
+            },
+            {
+                "task6": [
+                    "military rank",
+                    "sport",
+                    "occupation",
+                    "location",
+                    "sport",
+                    "work location",
+                    "occupation",
+                    "composer",
+                    "operating system",
+                    "nominated for"
+                ]
+            },
+            {
+                "task7": [
+                    "owned by",
+                    "instrument",
+                    "record label",
+                    "country of origin",
+                    "mountain range",
+                    "country of citizenship",
+                    "mountain range",
+                    "mouth of the watercourse",
+                    "country of origin",
+                    "member of"
+                ]
+            },
+            {
+                "task8": [
+                    "genre",
+                    "location of formation",
+                    "language of work or name",
+                    "developer",
+                    "location of formation",
+                    "contains administrative territorial entity",
+                    "league",
+                    "genre",
+                    "occupant",
+                    "developer"
+                ]
+            }
+        ]
+    },
+    {
+        "run_4": [
+            {
+                "task1": [
+                    "developer",
+                    "location of formation",
+                    "movement",
+                    "platform",
+                    "field of work",
+                    "heritage designation",
+                    "main subject",
+                    "location",
+                    "successful candidate",
+                    "operating system"
+                ]
+            },
+            {
+                "task2": [
+                    "sport",
+                    "sports season of league or competition",
+                    "country of citizenship",
+                    "located in or next to body of water",
+                    "constellation",
+                    "owned by",
+                    "part of",
+                    "country",
+                    "participant of",
+                    "place served by transport hub"
+                ]
+            },
+            {
+                "task3": [
+                    "publisher",
+                    "position held",
+                    "publisher",
+                    "headquarters location",
+                    "director",
+                    "instance of",
+                    "followed by",
+                    "country of origin",
+                    "sibling",
+                    "publisher"
+                ]
+            },
+            {
+                "task4": [
+                    "original language of film or TV show",
+                    "participant",
+                    "member of political party",
+                    "record label",
+                    "architect",
+                    "mountain range",
+                    "mountain range",
+                    "located on terrain feature",
+                    "composer",
+                    "spouse"
+                ]
+            },
+            {
+                "task5": [
+                    "located in the administrative territorial entity",
+                    "occupant",
+                    "located in the administrative territorial entity",
+                    "applies to jurisdiction",
+                    "league",
+                    "performer",
+                    "winner",
+                    "applies to jurisdiction",
+                    "characters",
+                    "league"
+                ]
+            },
+            {
+                "task6": [
+                    "said to be the same as",
+                    "military branch",
+                    "instrument",
+                    "instrument",
+                    "contains administrative territorial entity",
+                    "after a work by",
+                    "head of government",
+                    "child",
+                    "contains administrative territorial entity",
+                    "tributary"
+                ]
+            },
+            {
+                "task7": [
+                    "military rank",
+                    "mother",
+                    "licensed to broadcast to",
+                    "mother",
+                    "follows",
+                    "work location",
+                    "competition class",
+                    "has part",
+                    "mother",
+                    "position played on team / speciality"
+                ]
+            },
+            {
+                "task8": [
+                    "operator",
+                    "occupation",
+                    "participating team",
+                    "language of work or name",
+                    "member of",
+                    "genre",
+                    "taxon rank",
+                    "nominated for",
+                    "voice type",
+                    "subsidiary"
+                ]
+            }
+        ]
+    },
+    {
+        "run_5": [
+            {
+                "task1": [
+                    "mountain range",
+                    "successful candidate",
+                    "constellation",
+                    "located in or next to body of water",
+                    "characters",
+                    "language of work or name",
+                    "successful candidate",
+                    "movement",
+                    "member of political party",
+                    "religion"
+                ]
+            },
+            {
+                "task2": [
+                    "located on terrain feature",
+                    "headquarters location",
+                    "participant",
+                    "platform",
+                    "sibling",
+                    "original network",
+                    "contains administrative territorial entity",
+                    "country",
+                    "sibling",
+                    "sports season of league or competition"
+                ]
+            },
+            {
+                "task3": [
+                    "part of",
+                    "after a work by",
+                    "taxon rank",
+                    "member of",
+                    "country of citizenship",
+                    "taxon rank",
+                    "taxon rank",
+                    "screenwriter",
+                    "operating system",
+                    "military rank"
+                ]
+            },
+            {
+                "task4": [
+                    "applies to jurisdiction",
+                    "followed by",
+                    "residence",
+                    "located in the administrative territorial entity",
+                    "position held",
+                    "competition class",
+                    "competition class",
+                    "manufacturer",
+                    "followed by",
+                    "occupation"
+                ]
+            },
+            {
+                "task5": [
+                    "military branch",
+                    "location of formation",
+                    "participant of",
+                    "heritage designation",
+                    "record label",
+                    "genre",
+                    "location",
+                    "has part",
+                    "performer",
+                    "winner"
+                ]
+            },
+            {
+                "task6": [
+                    "follows",
+                    "league",
+                    "operator",
+                    "operator",
+                    "sport",
+                    "child",
+                    "field of work",
+                    "instrument",
+                    "mouth of the watercourse",
+                    "work location"
+                ]
+            },
+            {
+                "task7": [
+                    "distributor",
+                    "owned by",
+                    "said to be the same as",
+                    "head of government",
+                    "father",
+                    "developer",
+                    "occupant",
+                    "head of government",
+                    "notable work",
+                    "position played on team / speciality"
+                ]
+            },
+            {
+                "task8": [
+                    "mother",
+                    "tributary",
+                    "voice type",
+                    "tributary",
+                    "mother",
+                    "main subject",
+                    "voice type",
+                    "main subject",
+                    "original language of film or TV show",
+                    "voice type"
+                ]
+            }
+        ]
+    }
+]
