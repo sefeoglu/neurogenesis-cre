@@ -114,6 +114,8 @@ class Trainer(object):
         # tokenize data
         # get embeddings
         train_emb = self.get_clean_data(self.task_data)
+        # save train get_embeddings
+        np.save(PREFIX_PATH + "data/train_emb.npy", train_emb)
         
         print("Train data: ", train_emb)
         
