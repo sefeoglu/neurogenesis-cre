@@ -11,21 +11,23 @@ class REModel(nn.Module):
     """
     def __init__(self, input_dim, output_dim):
         super().__init__()
+
         self.fc = nn.Linear(input_dim, output_dim)
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         x = self.fc(x)
         x = self.softmax(x)
         return x
-    def loss(self, y_pred, y_true):
-        return F.cross_entropy(y_pred, y_true)
+    # def loss(self, y_pred, y_true):
+    #     return F.cross_entropy(y_pred, y_true)
 
-    def accuracy(self, y_pred, y_true):
-        return torch.sum(torch.argmax(y_pred, dim=1) == y_true).item() / len(y_true)
+    # def accuracy(self, y_pred, y_true):
+    #     return torch.sum(torch.argmax(y_pred, dim=1) == y_true).item() / len(y_true)
 
-    def optimizer(self, lr):
-        return optim.Adam(self.parameters(), lr=lr) 
+    # def optimizer(self, lr):
+    #     return optim.Adam(self.parameters(), lr=lr) 
 
     def save(self, path):
         torch.save(self.state_dict(), path)
