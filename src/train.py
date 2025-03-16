@@ -17,6 +17,7 @@ from models.gat_layer import GraphAttentionLayer
 from models.re_model import REModel
 from models.embedding_layer import EmbeddingLayer
 
+from data_preparation.prepare_dependency_matrix import prepare_dependency_matrix
 
 class Trainer(object):
     def __init__(self, config_path):
@@ -30,7 +31,7 @@ class Trainer(object):
         self.embedding_model = self.config["MODEL"]["embedding_model"]
         print("Data set: ", self.data_set)
         print("Train path: ", self.train_path)
-
+       
         #hyperparameters
         self.EPOCHS = self.config["HYPERPARAMETERS"]["epochs"]
         self.BATCH_SIZE = self.config["HYPERPARAMETERS"]["batch_size"]
@@ -52,32 +53,77 @@ class Trainer(object):
 
         """
         return text.replace('( )', '').rstrip().lstrip()
+    def get_gat_entity_emb(self, text, entity1, entity2):
+        """
+        Get entity embeddings using GAT
+        """
+        # print(text)
+        # print(entity1)
+        # print(entity2)
+        entity_single_1 = entity1.replace(' ', '_').replace('-','_').replace('.','').replace('/','_').rstrip().lstrip()
+        entity_single_2 = entity2.replace(' ', '_').replace('-','_').replace('.','').replace('/','_').rstrip().lstrip()
+        text = text.replace(entity1, entity_single_1).replace(entity2, entity_single_2)
 
+        words, matrix = prepare_dependency_matrix(text)
+        
+        word_emb = [np.array(self.embedding_layer.get_embeddings(word), dtype=np.float32).reshape(-1) for word in words]
+
+        max_len = max(len(emb) for emb in word_emb)
+        word_emb = [np.pad(emb, (0, max_len - len(emb)), 'constant') for emb in word_emb]
+      
+        matrix = torch.tensor(matrix, dtype=torch.float32)
+        word_emb = np.array(word_emb, dtype=np.float32)  # Specify dtype for word_emb
+        word_emb = torch.tensor(word_emb, dtype=torch.float32)
+        # print(words)
+        ent1_index= words.index(entity_single_1)
+        ent2_index= words.index(entity_single_2)
+
+        self.gat_layer = GraphAttentionLayer(in_features=word_emb.shape[1], out_features=word_emb.shape[1], dropout=0.6, alpha=0.2, concat=True)
+
+
+        with torch.no_grad():
+            h_primes = self.gat_layer(word_emb, matrix)
+        
+        entity_1_prime = h_primes[ent1_index]
+        entity_2_prime = h_primes[ent2_index]
+        return h_primes, entity_1_prime, entity_2_prime
+
+        
     def input_prepation(self, item):
         """
         Prepare input for training and compute model embeddings
         """
         input = dict()
-        
+
         input['sentence'] = self.data_cleaning(item['sentence'])
         input['entity1'] = item['subject']
         input['entity2'] = item['object']
         input['relation'] = item['relation']
         input['sentence_embedding'] = self.embedding_layer.get_embeddings(item['sentence'])
+
         input['entity1_embedding'] = self.embedding_layer.get_embeddings(item['subject'])
         input['entity2_embedding'] = self.embedding_layer.get_embeddings(item['object'])
         input['relation_embedding'] = self.embedding_layer.get_embeddings(item['relation'])
-        
+        h_primes, entity_1_prime, entity_2_prime = self.get_gat_entity_emb(item['sentence'], item['subject'], item['object'])
+        input['gat_entity_1'] = entity_1_prime
+        input['gat_entity_2'] =  entity_2_prime
+        input['gat_entity_prime'] = h_primes
+        # print(gat_emb)
         return input
 
     def get_data_embeddings(self, dataset):
             """
             Clean data and remove unwanted characters
             """
+            task = read_json('tacred_5way.json')[0]['run_1'][0]['task1']
             train_data_emb = []
-            print(dataset)
+            # print(dataset)
+            dataset = [ data for data in dataset if data['relation'] != 'no_relation']
+            dataset = [ item for item in dataset if item['relation'] in task[:2]]
+            print(len(dataset))
+           
+            
             for i, item in enumerate(dataset):
-              if item['relation'] != 'no_relation': # Changed the condition to !=
                 _input = self.input_prepation(item)
 
                 # Move tensors in the dictionary to CPU individually
@@ -85,7 +131,6 @@ class Trainer(object):
                   if isinstance(value, torch.Tensor):
                     _input[key] = value.to('cpu')
                 train_data_emb.append(_input) # Append the modified dictionary outside the inner loop
-              
             return train_data_emb # Moved the return statement outside the main loop
 
     def load_data(self, dataset_id):
@@ -93,7 +138,7 @@ class Trainer(object):
         dataset = load_dataset(dataset_id)
         # print("Dataset loaded: ", dataset['train'][0]['data'])
         return dataset
-    
+
     def generate_batches(self,samples, batch_size):
 
         for i in range(0, len(samples), batch_size):
@@ -126,19 +171,19 @@ class Trainer(object):
         np.save("train_emb.npy", train_emb)
         # model training
 
-        print("Training model...")
+        # print("Training model...")
 
-        for epoch in tqdm(range(1, self.EPOCHS+1)):
-            for batch_samples in self.generate_batches(train_emb, self.BATCH_SIZE):
-                # train model
-                with torch.gradient():
-                ## TODO ##
-                # custom training function
-                    pass
+        # for epoch in tqdm(range(1, self.EPOCHS+1)):
+        #     for batch_samples in self.generate_batches(train_emb, self.BATCH_SIZE):
+        #         # train model
+        #         with torch.gradient():
+        #         ## TODO ##
+        #         # custom training function
+        #             pass
 
         # evaluate
         # save model
-    
+
 
 
     def evaluate(self):
@@ -155,15 +200,3 @@ if __name__ == '__main__':
     print("Training model with config: ", config_path)
     print("Loading config file...")
     print(config_path)
-
-    trainer = Trainer(config_path)
-
-    trainer.train()
-
-
-
-
-
-
-
-
