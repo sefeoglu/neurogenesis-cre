@@ -15,6 +15,9 @@ class ProliferationLayer(nn.Module):
         self.softmax = nn.Softmax(dim=1)
         self.custom_layer = custom_layer
         self.custom_self_attn = attention_layer
+        self.low = int(1e3)
+        self.high = int(1e5)
+        
 
     def forward(self, x):
  
@@ -50,8 +53,8 @@ class ProliferationLayer(nn.Module):
 
         #Constructing phi (random features)
 
-        phi_low_m = get_phi(m = int(1e3), D = custom_self_attn.attention_head_size,which_phi = 'performer')
-        phi_high_m = get_phi(m = int(1e5), D = custom_self_attn.attention_head_size,which_phi = 'performer')
+        phi_low_m = get_phi(m = self.low, D = custom_self_attn.attention_head_size,which_phi = 'performer')
+        phi_high_m = get_phi(m = self.high, D = custom_self_attn.attention_head_size,which_phi = 'performer')
 
         astro_ps_low_m = get_astro_responses(query_layer,key_layer, self.nhead,phi_low_m)
 

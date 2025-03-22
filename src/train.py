@@ -52,9 +52,11 @@ class DebertaTrainer:
 
 
         for epoch in range(1, self.EPOCHS + 1):
+
             # Training phase
             self.deberta.train()
             train_loss = 0.0
+
             with tqdm(self.generate_batches(train_data, self.BATCH_SIZE), total=len(train_data) // self.BATCH_SIZE) as progress_bar:
                 for batch_samples in progress_bar:
                     # Tokenize input batch
@@ -79,13 +81,17 @@ class DebertaTrainer:
                     progress_bar.set_description(f"Epoch {epoch} [Train], Loss: {loss.item():.4f}")
 
             avg_train_loss = train_loss / len(train_data)
+
             print(f"Epoch {epoch} Training finished with average loss: {avg_train_loss:.4f}")
 
             # Validation phase
             self.deberta.eval()
             val_loss = 0.0
+
             with torch.no_grad():
+
                 with tqdm(self.generate_batches(val_data, self.BATCH_SIZE), total=len(val_data) // self.BATCH_SIZE) as progress_bar:
+
                     for batch_samples in progress_bar:
                         # Tokenize input batch
                         inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
@@ -104,38 +110,8 @@ class DebertaTrainer:
                         progress_bar.set_description(f"Epoch {epoch} [Validation], Loss: {loss.item():.4f}")
 
             avg_val_loss = val_loss / len(val_data)
+
             print(f"Epoch {epoch} Validation finished with average loss: {avg_val_loss:.4f}")
-        self.deberta.train()
-
-
-        for epoch in range(1, self.EPOCHS + 1):
-            epoch_loss = 0.0
-            with tqdm(self.generate_batches(train_data, self.BATCH_SIZE), total=len(train_data) // self.BATCH_SIZE) as progress_bar:
-                for batch_samples in progress_bar:
-                    # Tokenize input batch
-                    inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
-
-                    # Forward pass
-                    outputs = self.deberta(**inputs).last_hidden_state
-                    normalized_out = re_model(inputs)
-
-                    # Assume labels are provided in the batch (adjust according to your dataset structure)
-                    labels = inputs['input_ids']  # Example placeholder, modify as needed
-
-                    # Compute loss
-                    loss = self.criterion(outputs.view(-1, outputs.size(-1)), labels.view(-1))
-
-                    # Backpropagation
-                    self.optimizer.zero_grad()
-                    loss.backward()
-                    self.optimizer.step()
-
-                    # Update progress bar and accumulate loss
-                    epoch_loss += loss.item()
-                    progress_bar.set_description(f"Epoch {epoch}, Loss: {loss.item():.4f}")
-
-            print(f"Epoch {epoch} finished with average loss: {epoch_loss / len(train_data):.4f}")
-
 
 
 class Trainer(object):
@@ -214,10 +190,10 @@ class Trainer(object):
         """
         input = dict()
 
-        input['sentence'] = self.data_cleaning(item['sentence'])
-        input['entity1'] = item['subject']
-        input['entity2'] = item['object']
-        input['relation'] = item['relation']
+        # input['sentence'] = self.data_cleaning(item['sentence'])
+        # input['entity1'] = item['subject']
+        # input['entity2'] = item['object']
+        # input['relation'] = item['relation']
         input['sentence_embedding'] = self.embedding_layer.get_embeddings(item['sentence'])
 
         input['entity1_embedding'] = self.embedding_layer.get_embeddings(item['subject'])
