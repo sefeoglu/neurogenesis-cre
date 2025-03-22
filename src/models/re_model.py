@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F 
-from neurogenesis import ProliferationLayer
+from models.neurogenesis import ProliferationLayer
 
 class AddAndNormalize(nn.Module):
     def __init__(self, d_model, eps=1e-6):

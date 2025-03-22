@@ -1,5 +1,5 @@
 
-
+import numpy as np
 rand_seed = 16
 
 np.random.seed(rand_seed) #for reproducibility

@@ -8,22 +8,21 @@ import torch
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 import numpy as np
-from models.gat_layer import GraphAttentionLayer
-from models.re_model import REModel
-from models.embedding_layer import EmbeddingLayer
-from typing import Optional, Tuple, Union
-
-from .configuration_deberta import DebertaConfig
 
 
-from data_preparation.prepare_dependency_matrix import prepare_dependency_matrix
 
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 PREFIX_PATH = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1]) + "/"
-# sys.path.append(PREFIX_PATH)
-
+sys.path.append(PREFIX_PATH)
+print(PREFIX_PATH)
+from models.gat_layer import GraphAttentionLayer
+from models.re_model import REModel
+from models.embedding_layer import EmbeddingLayer
+from typing import Optional, Tuple, Union
+from data_preparation.dependency_matrix import prepare_dependency_matrix
+from models.neurogenesis import ProliferationLayer
 
 
 class DebertaTrainer:
@@ -34,8 +33,8 @@ class DebertaTrainer:
         self.BATCH_SIZE = batch_size
         
         # Load model and tokenizer
-        self.deberta = DebertaModel.from_pretrained('microsoft/deberta-base')
-        self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
+        self.deberta = DebertaModel.from_pretrained('microsoft/deberta-v3-large')
+        self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-v3-large')
         self.deberta.to(self.device)
         input_dim = 768
         output_dim = 2
@@ -236,22 +235,23 @@ class Trainer(object):
             """
             Clean data and remove unwanted characters
             """
-            task = read_json('tacred_5way.json')[0]['run_1'][0]['task1']
+         
             train_data_emb = []
-            # print(dataset)
-            dataset = [ data for data in dataset if data['relation'] != 'no_relation']
-            dataset = [ item for item in dataset if item['relation'] in task[:2]]
+            print(dataset)
+
             print(len(dataset))
            
-            
             for i, item in enumerate(dataset):
                 _input = self.input_prepation(item)
 
                 # Move tensors in the dictionary to CPU individually
                 for key, value in _input.items():
+
                   if isinstance(value, torch.Tensor):
                     _input[key] = value.to('cpu')
+
                 train_data_emb.append(_input) # Append the modified dictionary outside the inner loop
+                
             return train_data_emb # Moved the return statement outside the main loop
 
     def load_data(self, dataset_id):

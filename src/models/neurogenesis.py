@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from neuron_astrocyte import *
+from .neuron_astrocyte import *
 
 class ProliferationLayer(nn.Module):
     """ Neurogenesis phase 1: Proliferation """
