@@ -16,8 +16,86 @@ from transformers import BertTokenizer, BertModel
 from models.gat_layer import GraphAttentionLayer
 from models.re_model import REModel
 from models.embedding_layer import EmbeddingLayer
+from typing import Optional, Tuple, Union
+
+import torch
+import torch.utils.checkpoint
+from torch import nn
+from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+
+from ...activations import ACT2FN
+from ...modeling_outputs import (
+    BaseModelOutput,
+    MaskedLMOutput,
+    QuestionAnsweringModelOutput,
+    SequenceClassifierOutput,
+    TokenClassifierOutput,
+)
+from ...modeling_utils import PreTrainedModel
+from ...utils import add_code_sample_docstrings, add_start_docstrings, add_start_docstrings_to_model_forward, logging
+from .configuration_deberta import DebertaConfig
+
 
 from data_preparation.prepare_dependency_matrix import prepare_dependency_matrix
+import torch
+from transformers import DebertaModel, DebertaTokenizer
+from tqdm import tqdm
+
+class DebertaTrainer:
+    def __init__(self, device, lr, epochs, batch_size):
+        self.device = device
+        self.lr = lr
+        self.EPOCHS = epochs
+        self.BATCH_SIZE = batch_size
+        
+        # Load model and tokenizer
+        self.deberta = DebertaModel.from_pretrained('microsoft/deberta-base')
+        self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
+        self.deberta.to(self.device)
+        self.re_model = REModel(self.deberta.attention, self.deberta.encoder.layer[0].attention.self)
+        # Define optimizer and loss function
+        self.optimizer = torch.optim.AdamW(self.deberta.parameters(), lr=self.lr)
+        self.criterion = torch.nn.CrossEntropyLoss()
+
+    def generate_batches(self, data, batch_size):
+        """Generator to yield batches from the data."""
+        for i in range(0, len(data), batch_size):
+            yield data[i:i + batch_size]
+
+    def train(self, train_data):
+        self.deberta.train()
+
+        
+
+        for epoch in range(1, self.EPOCHS + 1):
+            epoch_loss = 0.0
+            with tqdm(self.generate_batches(train_data, self.BATCH_SIZE), total=len(train_data) // self.BATCH_SIZE) as progress_bar:
+                for batch_samples in progress_bar:
+                    # Tokenize input batch
+                    inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
+
+                    # Forward pass
+                    outputs = self.deberta(**inputs).last_hidden_state
+                    normalized_out = re_model(inputs)
+
+                    # Assume labels are provided in the batch (adjust according to your dataset structure)
+                    labels = inputs['input_ids']  # Example placeholder, modify as needed
+
+                    # Compute loss
+                    loss = self.criterion(outputs.view(-1, outputs.size(-1)), labels.view(-1))
+
+                    # Backpropagation
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    self.optimizer.step()
+
+                    # Update progress bar and accumulate loss
+                    epoch_loss += loss.item()
+                    progress_bar.set_description(f"Epoch {epoch}, Loss: {loss.item():.4f}")
+
+            print(f"Epoch {epoch} finished with average loss: {epoch_loss / len(train_data):.4f}")
+
+
 
 class Trainer(object):
     def __init__(self, config_path):
@@ -89,7 +167,7 @@ class Trainer(object):
         return h_primes, entity_1_prime, entity_2_prime
 
         
-    def input_prepation(self, item):
+    def input_prepation(self, item, gat=False):
         """
         Prepare input for training and compute model embeddings
         """
@@ -104,10 +182,11 @@ class Trainer(object):
         input['entity1_embedding'] = self.embedding_layer.get_embeddings(item['subject'])
         input['entity2_embedding'] = self.embedding_layer.get_embeddings(item['object'])
         input['relation_embedding'] = self.embedding_layer.get_embeddings(item['relation'])
-        h_primes, entity_1_prime, entity_2_prime = self.get_gat_entity_emb(item['sentence'], item['subject'], item['object'])
-        input['gat_entity_1'] = entity_1_prime
-        input['gat_entity_2'] =  entity_2_prime
-        input['gat_entity_prime'] = h_primes
+        if gat:
+            h_primes, entity_1_prime, entity_2_prime = self.get_gat_entity_emb(item['sentence'], item['subject'], item['object'])
+            input['gat_entity_1'] = entity_1_prime
+            input['gat_entity_2'] =  entity_2_prime
+            input['gat_entity_prime'] = h_primes
         # print(gat_emb)
         return input
 
@@ -169,17 +248,9 @@ class Trainer(object):
         #graph attention network for entity pair embeddings and word embeddings
         # save train data
         np.save("train_emb.npy", train_emb)
-        # model training
+        trainer = DebertaTrainer(device="cuda", lr=5e-5, epochs=3, batch_size=16)
+        trainer.train(train_emb)
 
-        # print("Training model...")
-
-        # for epoch in tqdm(range(1, self.EPOCHS+1)):
-        #     for batch_samples in self.generate_batches(train_emb, self.BATCH_SIZE):
-        #         # train model
-        #         with torch.gradient():
-        #         ## TODO ##
-        #         # custom training function
-        #             pass
 
         # evaluate
         # save model
