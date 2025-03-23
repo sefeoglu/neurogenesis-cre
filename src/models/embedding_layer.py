@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 
 class EmbeddingLayer(nn.Module):
-    def __init__(self, model_name="microsoft/deberta-base"):
+    def __init__(self, model_name="microsoft/deberta-v3-large"):
         super(EmbeddingLayer, self).__init__()
         self.embedding_model = model_name
         self.load_tokenizer()

@@ -27,28 +27,30 @@ from models.neurogenesis import ProliferationLayer
 
 class DebertaTrainer:
     def __init__(self, device, lr, epochs, batch_size):
-        self.device = device
-        self.lr = lr
-        self.EPOCHS = epochs
-        self.BATCH_SIZE = batch_size
+        self.device = 'cpu'
+        self.lr = float(lr)
+        self.EPOCHS = int(epochs)
+        self.BATCH_SIZE = int(batch_size)
         
         # Load model and tokenizer
-        self.deberta = DebertaModel.from_pretrained('microsoft/deberta-v3-large')
-        self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-v3-large')
+        self.deberta = DebertaModel.from_pretrained('microsoft/deberta-v3-large', ignore_mismatched_sizes=True)
+        self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
+
         self.deberta.to(self.device)
         input_dim = 768
         output_dim = 2
-        self.re_model = REModel(input_dim, output_dim, self.deberta.attention, self.deberta.encoder.layer[0].attention.self)
+        # self.re_model = REModel(input_dim, output_dim, self.deberta.attention, self.deberta.encoder.layer[0].attention.self)
         # Define optimizer and loss function
         self.optimizer = torch.optim.AdamW(self.deberta.parameters(), lr=self.lr)
-        self.criterion = torch.nn.CrossEntropyLoss()
+        
 
     def generate_batches(self, data, batch_size):
         """Generator to yield batches from the data."""
+
         for i in range(0, len(data), batch_size):
             yield data[i:i + batch_size]
 
-    def train(self, train_data, val_data):
+    def train(self, train_data, out_label_ids=None):
 
 
         for epoch in range(1, self.EPOCHS + 1):
@@ -60,16 +62,24 @@ class DebertaTrainer:
             with tqdm(self.generate_batches(train_data, self.BATCH_SIZE), total=len(train_data) // self.BATCH_SIZE) as progress_bar:
                 for batch_samples in progress_bar:
                     # Tokenize input batch
-                    inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
-
+                    train_samples =  [item['sentence_embedding'] for item in batch_samples]
+                    labels = [item['relation_embedding'] for item in batch_samples]
+                    # print(train_samples)
+                    inputs = self.tokenizer(train_samples, return_tensors="pt", padding=True, truncation=True)
+                    labels = self.tokenizer(labels, return_tensors="pt", padding=True, truncation=True)
                     # Forward pass
                     outputs = self.deberta(**inputs).last_hidden_state
 
                     # Assume labels are provided in the batch (adjust according to your dataset structure)
-                    labels = inputs['input_ids']  # Example placeholder, modify as needed
+                    # labels = inputs['input_ids']  # Example placeholder, modify as needed
 
                     # Compute loss
-                    loss = self.criterion(outputs.view(-1, outputs.size(-1)), labels.view(-1))
+                    outputs_flat = outputs.view(-1, outputs.size(-1))  # Shape: [4*33, 1024]
+                    labels_flat = labels.view(-1)                     # Shape: [4*33]
+                    print(labels_flat[0])
+                    print(outputs_flat.shape)
+                    # Compute loss
+                    loss = nn.CrossEntropyLoss(outputs_flat, labels_flat)
 
                     # Backpropagation
                     self.optimizer.zero_grad()
@@ -84,34 +94,34 @@ class DebertaTrainer:
 
             print(f"Epoch {epoch} Training finished with average loss: {avg_train_loss:.4f}")
 
-            # Validation phase
-            self.deberta.eval()
-            val_loss = 0.0
+            # # Validation phase
+            # self.deberta.eval()
+            # val_loss = 0.0
 
-            with torch.no_grad():
+            # with torch.no_grad():
 
-                with tqdm(self.generate_batches(val_data, self.BATCH_SIZE), total=len(val_data) // self.BATCH_SIZE) as progress_bar:
+            #     with tqdm(self.generate_batches(val_data, self.BATCH_SIZE), total=len(val_data) // self.BATCH_SIZE) as progress_bar:
 
-                    for batch_samples in progress_bar:
-                        # Tokenize input batch
-                        inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
+            #         for batch_samples in progress_bar:
+            #             # Tokenize input batch
+            #             inputs = self.tokenizer(batch_samples, return_tensors="pt", padding=True, truncation=True).to(self.device)
 
-                        # Forward pass
-                        outputs = self.deberta(**inputs).last_hidden_state
+            #             # Forward pass
+            #             outputs = self.deberta(**inputs).last_hidden_state
 
-                        # Assume labels are provided in the batch (adjust according to your dataset structure)
-                        labels = inputs['input_ids']  # Example placeholder, modify as needed
+            #             # Assume labels are provided in the batch (adjust according to your dataset structure)
+            #             labels = inputs['input_ids']  # Example placeholder, modify as needed
 
-                        # Compute loss
-                        loss = self.criterion(outputs.view(-1, outputs.size(-1)), labels.view(-1))
+            #             # Compute loss
+            #             loss = self.criterion(outputs.view(-1, outputs.size(-1)), labels.view(-1))
 
-                        # Accumulate validation loss
-                        val_loss += loss.item()
-                        progress_bar.set_description(f"Epoch {epoch} [Validation], Loss: {loss.item():.4f}")
+            #             # Accumulate validation loss
+            #             val_loss += loss.item()
+            #             progress_bar.set_description(f"Epoch {epoch} [Validation], Loss: {loss.item():.4f}")
 
-            avg_val_loss = val_loss / len(val_data)
+            # avg_val_loss = val_loss / len(val_data)
 
-            print(f"Epoch {epoch} Validation finished with average loss: {avg_val_loss:.4f}")
+            # print(f"Epoch {epoch} Validation finished with average loss: {avg_val_loss:.4f}")
 
 
 class Trainer(object):
@@ -194,13 +204,13 @@ class Trainer(object):
         # input['entity1'] = item['subject']
         # input['entity2'] = item['object']
         # input['relation'] = item['relation']
-        input['sentence_embedding'] = self.embedding_layer.get_embeddings(item['sentence'])
+        input['sentence_embedding'] = item['sentence']
 
-        input['entity1_embedding'] = self.embedding_layer.get_embeddings(item['subject'])
-        input['entity2_embedding'] = self.embedding_layer.get_embeddings(item['object'])
-        input['relation_embedding'] = self.embedding_layer.get_embeddings(item['relation'])
+        # input['entity1_embedding'] = self.embedding_layer.get_embeddings(item['entity1'])
+        # input['entity2_embedding'] = self.embedding_layer.get_embeddings(item['entity2'])
+        input['relation_embedding'] = item['relation']
         if gat:
-            h_primes, entity_1_prime, entity_2_prime = self.get_gat_entity_emb(item['sentence'], item['subject'], item['object'])
+            h_primes, entity_1_prime, entity_2_prime = self.get_gat_entity_emb(item['sentence'], item['entity1'], item['entity2'])
             input['gat_entity_1'] = entity_1_prime
             input['gat_entity_2'] =  entity_2_prime
             input['gat_entity_prime'] = h_primes
@@ -213,9 +223,9 @@ class Trainer(object):
             """
          
             train_data_emb = []
-            print(dataset)
+            # print(dataset)
 
-            print(len(dataset))
+            # print(len(dataset))
            
             for i, item in enumerate(dataset):
                 _input = self.input_prepation(item)
@@ -255,15 +265,17 @@ class Trainer(object):
         # tokenize data
         # get embeddings
         self.train_data = self.data['train']
-        # print("Train data: ", self.train_data)
+
+        print("Train data: ", self.train_data)
         train_emb = self.get_data_embeddings(self.train_data)
+
         self.val_data = self.data['validation']
-        val_emb = self.get_data_embeddings(self.val_data)
-        self.test_data = self.data['test']
-        test_emb = self.get_data_embeddings(self.test_data)
+        # val_emb = self.get_data_embeddings(self.val_data)
+        # self.test_data = self.data['test']
+        # test_emb = self.get_data_embeddings(self.test_data)
         np.save("train_emb.npy", train_emb)
         trainer = DebertaTrainer(device="cuda", lr=self.lr, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE)
-        trainer.train(train_emb, val_emb)
+        trainer.train(train_emb)
         model = trainer.deberta
         self.save_model(model)
         # evaluate
