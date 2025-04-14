@@ -22,7 +22,7 @@ set_seed(42)
 
 
 
-def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch_list, neuro_phi):
+def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_list, neuro_phi):
 
     
     # torch.cuda.empty_cache()
@@ -85,7 +85,7 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
             # all_seen_test_data = RelationDataset(all_test_sentences, test_labels_seen, tokenizer, max_length=512)
 
             for i, epoch in enumerate(epoch_list):
-
+                print(f"Epoch-------------{epoch}=={i}")
                 for batch in batch_list:
                     model, tokenizer, train_hist = train_model(epoch, batch, val_dataset, train_dataset, model, run_id, task_id)
 
@@ -107,11 +107,15 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
         del model
 
 if __name__ == "__main__":
+    #drive folde=EMNLP-neurogenesis
     output_dir = "./neurogenesis_results_low"
+    phi = ['performer']
     neuro_genesis = True
     epoch_list = [1]
     batch_list = [16]
-    baseline_name = "bert_large_performer_neurogenesis"
-    dataset_path = "/content/tacred/final"
-    neuro_genesis_type_phi = "performer"
-    main(output_dir, dataset_path, neuro_genesis,baseline_name, epoch_list, batch_list, neuro_genesis_type_phi)
+    for neuro_genesis_type_phi in phi:
+      baseline_name = "bert_large_performer_neurogenesis"
+      dataset_path = "/content/tacred/final"
+      output_dir = f"drive/MyDrive/neurogenesis_results_{neuro_genesis_type_phi}"
+
+      main(output_dir, dataset_path, neuro_genesis,baseline_name, epoch_list, batch_list, neuro_genesis_type_phi)
