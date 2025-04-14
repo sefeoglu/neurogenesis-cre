@@ -2,19 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from transformers import BertModel, BertTokenizer, BertForSequenceClassification, PreTrainedModel, BertConfig
-
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
-from sklearn.metrics import accuracy_score
-from torch.nn import CrossEntropyLoss
-
+from transformers import BertModel, PreTrainedModel
+from neuro_genesis import neurogenesis  # Ensure this module is available in your environment
 import random
-import json
-import os
-import sys
-import re
-
 
 # Set random seeds for reproducibility
 def set_seed(seed: int):
@@ -30,7 +20,8 @@ set_seed(42)
 
 
 class CustomBERTEncoderBlock(nn.Module):
-    def __init__(self, embed_size, ff_hidden_size, dropout=0.1):
+    def __init__(self, embed_size, ff_hidden_size, dropout=0.1, neurogenesis=True):
+        
         super(CustomBERTEncoderBlock, self).__init__()
         self.query_fc = nn.Linear(embed_size, embed_size)
         self.key_fc = nn.Linear(embed_size, embed_size)
@@ -44,18 +35,22 @@ class CustomBERTEncoderBlock(nn.Module):
             nn.Linear(ff_hidden_size, embed_size)
         )
         self.dropout = nn.Dropout(dropout)
+        self.neurogenesis = neurogenesis
 
     def forward(self, x):
         query = self.query_fc(x)
         key = self.key_fc(x)
         value = self.value_fc(x)
-        low = neurogenesis(512, query, key, 4 )
-
-        # # Convert low and high to PyTorch tensors before applying softmax
-        low = torch.tensor(low, device=x.device, dtype=torch.float32)  # Ensure correct data type
-
         attn_scores = torch.matmul(query, key.transpose(-2, -1)) / (query.size(-1) ** 0.5)
-        attn_weights = F.softmax(low, dim=-1)
+        # Apply neurogenesis only if enabled
+        if self.neurogenesis:
+            low = neurogenesis(512, query, key, 4 )
+
+            # # Convert low and high to PyTorch tensors before applying softmax
+            low = torch.tensor(low, device=x.device, dtype=torch.float32)  # Ensure correct data type
+            attn_weights = F.softmax(low, dim=-1)
+        else:
+            attn_weights = F.softmax(attn_scores, dim=-1)
         attn_output = torch.matmul(attn_weights, value)
 
         x = self.norm1(x + self.dropout(attn_output))
