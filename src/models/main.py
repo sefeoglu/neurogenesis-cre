@@ -108,7 +108,7 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_
 
 if __name__ == "__main__":
     #drive folde=EMNLP-neurogenesis
-    output_dir = "./neurogenesis_results_low"
+  
     phi = ['performer']
     neuro_genesis = True
     epoch_list = [1]
@@ -116,6 +116,6 @@ if __name__ == "__main__":
     for neuro_genesis_type_phi in phi:
       baseline_name = "bert_large_performer_neurogenesis"
       dataset_path = "/content/tacred/final"
-      output_dir = f"drive/MyDrive/neurogenesis_results_{neuro_genesis_type_phi}"
+      output_dir = f"drive/MyDrive/EMNLP-neurogenesis/neurogenesis_results_{neuro_genesis_type_phi}"
 
       main(output_dir, dataset_path, neuro_genesis,baseline_name, epoch_list, batch_list, neuro_genesis_type_phi)
