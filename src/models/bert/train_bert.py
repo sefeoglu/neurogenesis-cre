@@ -101,7 +101,7 @@ def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, t
 
         scheduler.step(val_loss)
 
-        print(f"  Train Loss = {train_loss:.4f}, Val Loss = {val_loss:.4f}, Val Accuracy = {val_accuracy:.4f}, Learning Rate = {scheduler.optimizer.param_groups[0]['lr']:.6f}")
+        print(f"Train Loss = {train_loss:.4f}, Val Loss = {val_loss:.4f}, Val Accuracy = {val_accuracy:.4f}, Learning Rate = {scheduler.optimizer.param_groups[0]['lr']:.6f}")
 
         epoch_log = {
             'epoch': epoch + 1,
