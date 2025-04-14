@@ -20,17 +20,7 @@ Integration of neurogenesis for continual relation extraction
 └── src
     ├── data-preparation
     │   └── README.md
-    ├── evalution
-    │   └── README.md
     ├── models
-    │   ├── README.md
-    │   └── re_model.py
-    ├── notebooks
-    │   ├── FS_CRE_neurogenesis.ipynb
-    │   └── full_task_neurogenesis_memory_replay.ipynb
-    ├── regularizer
-    │   ├── README.md
-    │   └── neurogenesis.py
     └── viz
         ├── README.md
         └── plots.py
