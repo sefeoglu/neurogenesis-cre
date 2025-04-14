@@ -18,7 +18,7 @@ def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_availabl
     we use this representation for simplicity. Different phi functions lead to different feature maps.
     """
     # Set random seed for reproducibility
-    torch.manual_seed(16)
+    torch.manual_seed(42)
 
     # Random weight matrix for random feature map
     W = torch.randn((m, D), device=device)
