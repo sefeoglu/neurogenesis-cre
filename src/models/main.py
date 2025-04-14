@@ -20,14 +20,15 @@ set_seed(42)
 
 def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch_list):
 
-    results = []
+    
     # torch.cuda.empty_cache()
-    for run_id in range(1,4):
+    for run_id in range(1,6):
+        results = []
 
-        all_labels = []
-        all_seen_test_data = []
-        all_test_sentences = []
-        all_test_labels = []
+        # all_labels = []
+        # all_seen_test_data = []
+        # all_test_sentences = []
+        # all_test_labels = []
 
         for task_id in range(1, 11):
 
@@ -37,9 +38,9 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
             test_prepared = data_preparation(test_data)
             val_data = read_json(f"{dataset_path}/train/run_{run_id}/task{task_id}/dev_1.json")
             val_prepared = data_preparation(val_data)
-            all_labels.extend([item['relation'] for item in train_prepared])
+            # all_labels.extend([item['relation'] for item in train_prepared])
             # Create unique mapping for all labels
-            label_to_int = {label: idx for idx, label in enumerate(set(all_labels))}
+            
 
             train_labels = [item['relation'] for item in train_prepared]
             train_sentences = [item['sentence'] for item in train_prepared]
@@ -47,16 +48,16 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
             test_sentences = [item['sentence'] for item in test_prepared]
             val_labels = [item['relation'] for item in val_prepared]
             val_sentences = [item['sentence'] for item in val_prepared]
-
-            all_test_sentences.extend(test_sentences)
-            all_test_labels.extend(test_labels)
+            label_to_int = {label: idx for idx, label in enumerate(set(train_labels))}
+            # all_test_sentences.extend(test_sentences)
+            # all_test_labels.extend(test_labels)
 
             # # Convert labels to integers using the pre-calculated mapping
             train_labels = [label_to_int[label] for label in train_labels]
             val_labels = [label_to_int[label] for label in val_labels]
             test_labels = [label_to_int[label] for label in test_labels]
 
-            test_labels_seen = [label_to_int[label] for label in all_test_labels]
+            # test_labels_seen = [label_to_int[label] for label in all_test_labels]
 
             # Create Dataset and DataLoader
             tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
@@ -77,7 +78,7 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
             val_dataset = RelationDataset(val_sentences, val_labels, tokenizer, max_length=512)
 
             test_dataset = RelationDataset(test_sentences, test_labels, tokenizer, max_length=512)
-            all_seen_test_data = RelationDataset(all_test_sentences, test_labels_seen, tokenizer, max_length=512)
+            # all_seen_test_data = RelationDataset(all_test_sentences, test_labels_seen, tokenizer, max_length=512)
 
             for i, epoch in enumerate(epoch_list):
 
@@ -87,12 +88,12 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
                     write_json(train_hist, f"{out_dir}/train_hist_{run_id}_{task_id}.json")
                     model_name_hf = f"{baseline_name}_{run_id}_{task_id}"
                     # base_model_hf = f"Sefika/bert_large_baseline_{run_id}_{task_id}"
-                    # model.push_to_hub(model_name_hf, private=True)
+                    model.push_to_hub(model_name_hf, private=True)
                     test_acc = test_model(model, test_dataset, batch)
-                    test_seen_acc = test_model(model, all_seen_test_data, batch)
+                    # test_seen_acc = test_model(model, all_seen_test_data, batch)
 
                     print(f"Epoch-------------{epoch}=={i}")
-                    result = {"run_id":run_id, "task_id": task_id, "epoch": epoch, "batch_size": batch, "test_acc": test_acc, "seen_test_acc":test_seen_acc}
+                    result = {"run_id":run_id, "task_id": task_id, "epoch": epoch, "batch_size": batch, "test_acc": test_acc}
                     results.append(result)
                     write_json(results, f"{out_dir}/results_{run_id}.json")
 
