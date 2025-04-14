@@ -13,9 +13,9 @@ PREFIX_PATH = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1
 # sys.path.append(PREFIX_PATH)
 
 from transformers import BertTokenizer, BertModel
-from models.gat_layer import GraphAttentionLayer
+from nextversion.gat_layer import GraphAttentionLayer
 from models.re_model import REModel
-from models.embedding_layer import EmbeddingLayer
+from nextversion.embedding_layer import EmbeddingLayer
 from typing import Optional, Tuple, Union
 
 import torch

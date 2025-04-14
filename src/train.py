@@ -17,9 +17,9 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 PREFIX_PATH = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1]) + "/"
 sys.path.append(PREFIX_PATH)
 print(PREFIX_PATH)
-from models.gat_layer import GraphAttentionLayer
+from nextversion.gat_layer import GraphAttentionLayer
 from models.re_model import REModel
-from models.embedding_layer import EmbeddingLayer
+from nextversion.embedding_layer import EmbeddingLayer
 from typing import Optional, Tuple, Union
 from data_preparation.dependency_matrix import prepare_dependency_matrix
 from models.neurogenesis import ProliferationLayer
