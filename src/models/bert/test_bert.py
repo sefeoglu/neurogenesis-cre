@@ -3,7 +3,18 @@ from torch.utils.data import DataLoader
 
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+import random
+import numpy as np
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
+
+set_seed(42)
 def test_model(model, test_dataset, batch_size):
   model.eval()
   test_preds, test_labels = [], []

@@ -4,6 +4,19 @@ from re_dataset import RelationDataset, data_preparation, read_json, write_json
 from train_bert import train_model
 from test_bert import test_model
 from baseline import BertForSequenceClassification_Neuro
+# Set random seeds for reproducibility
+import random
+import numpy as np
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
+set_seed(42)
 
 def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch_list):
 

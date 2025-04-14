@@ -1,4 +1,16 @@
 import torch
+import random
+import numpy as np
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
+set_seed(42)
 def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_available() else 'cpu'):
     """
     Function that returns the random feature map, phi.

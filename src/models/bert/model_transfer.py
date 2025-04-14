@@ -1,5 +1,5 @@
 import torch.nn as nn
-
+import torch
 def increment_class_labels(model, new_num_labels):
     """
     Increment the number of class labels in the classifier of the model.
