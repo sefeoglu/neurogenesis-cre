@@ -19,8 +19,9 @@ def set_seed(seed: int):
 set_seed(42)
 
 
+
 class CustomBERTEncoderBlock(nn.Module):
-    def __init__(self, embed_size, ff_hidden_size, dropout=0.1, neurogenesis=True):
+    def __init__(self, embed_size, ff_hidden_size, dropout=0.1, neurogenesis=True, phi='performer'):
         
         super(CustomBERTEncoderBlock, self).__init__()
         self.query_fc = nn.Linear(embed_size, embed_size)
@@ -36,6 +37,7 @@ class CustomBERTEncoderBlock(nn.Module):
         )
         self.dropout = nn.Dropout(dropout)
         self.neurogenesis = neurogenesis
+        self.phi = phi
 
     def forward(self, x):
         query = self.query_fc(x)
@@ -44,8 +46,7 @@ class CustomBERTEncoderBlock(nn.Module):
         attn_scores = torch.matmul(query, key.transpose(-2, -1)) / (query.size(-1) ** 0.5)
         # Apply neurogenesis only if enabled
         if self.neurogenesis:
-            low = neurogenesis(512, query, key, 4 )
-
+            low = neurogenesis(512, query, key, 4, phi=self.phi)
             # # Convert low and high to PyTorch tensors before applying softmax
             low = torch.tensor(low, device=x.device, dtype=torch.float32)  # Ensure correct data type
             attn_weights = F.softmax(low, dim=-1)
@@ -61,8 +62,8 @@ class CustomBERTEncoderBlock(nn.Module):
 
 
 class BertForSequenceClassification_Neuro(PreTrainedModel): # Inherit from PreTrainedModel
-    def __init__(self, config, pretrained_model_name='bert-large-uncased', num_classes=8, ff_hidden_size=2048, dropout=0.1, use_custom_encoder=True):
-        # Corrected super() call to use the current class name
+    def __init__(self, config, pretrained_model_name='bert-large-uncased', num_classes=8, ff_hidden_size=2048, dropout=0.1, use_custom_encoder=True, neuro_genesis=True, phi='performer'):
+
         super(BertForSequenceClassification_Neuro, self).__init__(config) # Pass config to super()
         self.bert = BertModel.from_pretrained(pretrained_model_name, config=config) # Pass config to BertModel
         self.use_custom_encoder = use_custom_encoder
@@ -70,10 +71,11 @@ class BertForSequenceClassification_Neuro(PreTrainedModel): # Inherit from PreTr
         embed_size = self.bert.config.hidden_size
 
         if use_custom_encoder:
-            self.custom_encoder = CustomBERTEncoderBlock(embed_size, ff_hidden_size, dropout)
+            self.custom_encoder = CustomBERTEncoderBlock(embed_size, ff_hidden_size, dropout,neurogenesis=neurogenesis, phi=phi)
 
         self.classifier = nn.Linear(embed_size, num_classes)
         self.dropout = nn.Dropout(dropout)
+   
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
         bert_output = self.bert(

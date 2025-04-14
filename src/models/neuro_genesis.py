@@ -11,6 +11,9 @@ def set_seed(seed: int):
 
 
 set_seed(42)
+
+
+
 def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_available() else 'cpu'):
     """
     Function that returns the random feature map, phi.
@@ -97,14 +100,7 @@ def get_astro_responses(query_layer, key_layer, nhead, phi):
     # Get the device of the query_layer
     device = query_layer.device
 
-    # Apply phi to the key layer for the specified head
-    # key_layer[nhead] has shape (ntokens, dim)
-    # rfa_normalized_keys will have shape (ntokens, m)
     rfa_normalized_keys = phi(key_layer[nhead])
-
-    # Apply phi to the query layer
-    # query_layer has shape (n_sample, ntokens, dim)
-    # transformed_queries will have shape (n_sample, ntokens, m)
     transformed_queries = phi(query_layer)
 
 
@@ -116,7 +112,7 @@ def get_astro_responses(query_layer, key_layer, nhead, phi):
     return astro_pulses
 
 
-def neurogenesis(head_size, query_layer, key_layer, nhead):
+def neurogenesis(head_size, query_layer, key_layer, nhead, phi='performer'):
     # Normalize Q and K matrices appropriately
     query_layer = query_layer / head_size ** (1/4)
     key_layer = key_layer / head_size ** (1/4)
@@ -127,7 +123,7 @@ def neurogenesis(head_size, query_layer, key_layer, nhead):
     key_layer = key_layer.to(device)
 
 
-    phi_low_m = get_phi(m=512, D=head_size, which_phi='performer')
+    phi_low_m = get_phi(m=512, D=head_size, which_phi=phi)
 
 
     astro_ps_low_m = get_astro_responses(query_layer, key_layer, 0, phi_low_m)

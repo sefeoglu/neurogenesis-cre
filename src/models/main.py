@@ -18,7 +18,11 @@ def set_seed(seed: int):
 
 set_seed(42)
 
-def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch_list):
+
+
+
+
+def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch_list, neuro_phi):
 
     
     # torch.cuda.empty_cache()
@@ -66,7 +70,7 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name,  batch_list, epoch
                 # Load the configuration first
             config = BertConfig.from_pretrained('bert-large-uncased', num_labels=len(label_to_int))
             # Then pass it to the model constructor
-            model = BertForSequenceClassification_Neuro(config, pretrained_model_name='bert-large-uncased', num_classes=len(label_to_int), use_custom_encoder=True, neuro_genesis=neuro_genesis)
+            model = BertForSequenceClassification_Neuro(config, pretrained_model_name='bert-large-uncased', num_classes=len(label_to_int), use_custom_encoder=True, neuro_genesis=neuro_genesis, phi=neuro_phi)
             # else:
 
             #     #The old model should have the total number of labels encountered till the last task.
@@ -107,6 +111,7 @@ if __name__ == "__main__":
     neuro_genesis = True
     epoch_list = [1]
     batch_list = [16]
-    baseline_name = "bert_large_baseline_neurogenesis"
+    baseline_name = "bert_large_performer_neurogenesis"
     dataset_path = "/content/tacred/final"
-    main(output_dir, dataset_path, neuro_genesis,baseline_name, epoch_list, batch_list)
+    neuro_genesis_type_phi = "performer"
+    main(output_dir, dataset_path, neuro_genesis,baseline_name, epoch_list, batch_list, neuro_genesis_type_phi)
