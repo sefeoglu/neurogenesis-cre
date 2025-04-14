@@ -22,7 +22,7 @@ from models.re_model import REModel
 from nextversion.embedding_layer import EmbeddingLayer
 from typing import Optional, Tuple, Union
 from data_preparation.dependency_matrix import prepare_dependency_matrix
-from models.neurogenesis import ProliferationLayer
+from nextversion.neurogenesis import ProliferationLayer
 
 
 class DebertaTrainer:
