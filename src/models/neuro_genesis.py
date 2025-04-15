@@ -12,8 +12,6 @@ def set_seed(seed: int):
 
 set_seed(42)
 
-
-
 def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_available() else 'cpu'):
     """
     Function that returns the random feature map, phi.
@@ -32,7 +30,11 @@ def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_availabl
 
         def phi(x, c=0):
             """Uses a cosine random feature map to approximate softmax attention."""
-            return torch.sqrt(2 / m) * torch.cos(W @ x + rand_b) * torch.exp(0.5 * (torch.norm(x) ** 2) - c)
+            
+            projected_x = nn.Linear(x.shape[-1], D, bias=False).to(device)(x) # Project x to dimension D using a linear layer with no bias
+            # projected_x.shape is now (sequence_length, D) which is (512, 512)
+
+            return torch.sqrt(torch.tensor(2 / m, device=device)) * torch.cos(W @ projected_x + rand_b) * torch.exp(0.5 * (torch.norm(projected_x) ** 2) - c)
 
     elif which_phi == 'performer':
         def phi(x, c=0):
@@ -58,8 +60,12 @@ def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_availabl
 
         def phi(x, thresh=10):
             """Uses a positive cosine random feature map to approximate softmax attention."""
-            scaling_factors = torch.sqrt(2 / (torch.pi * m)) * torch.exp(0.5 * (torch.norm(x) ** 2))
-            h = torch.cos(W @ x + rand_b)
+            # Convert m to a tensor to ensure correct type for division
+            m_tensor = torch.tensor(m, device=device, dtype=torch.float32)
+            # Project x to dimension D using a linear layer with no bias
+            projected_x = nn.Linear(x.shape[-1], D, bias=False).to(device)(x)
+            scaling_factors = torch.sqrt(2.0 / (torch.pi * m_tensor)) * torch.exp(0.5 * (torch.norm(projected_x) ** 2))
+            h = torch.cos(W @ projected_x + rand_b)  # Use projected_x for matrix multiplication
             return torch.clamp(scaling_factors * h, min=0)
 
     elif which_phi == 'dima_sin':
@@ -72,8 +78,14 @@ def get_phi(m, D, which_phi='performer', device='cuda' if torch.cuda.is_availabl
 
         def phi(x, thresh=10):
             """Uses a sine-based random feature map to approximate softmax attention."""
-            scaling_factors = torch.sqrt(2 / m) * torch.exp(0.5 * (torch.norm(x) ** 2))
-            h = clipped_sin(W @ x + rand_b)
+            # Convert m to a tensor to ensure correct type for division
+            m_tensor = torch.tensor(m, device=device, dtype=torch.float32) # Convert m to a tensor
+
+            # Project x to dimension D using a linear layer with no bias
+            projected_x = nn.Linear(x.shape[-1], D, bias=False).to(device)(x)  # Project x to D dimensions
+
+            scaling_factors = torch.sqrt(2.0 / m_tensor) * torch.exp(0.5 * (torch.norm(projected_x) ** 2)) # Use m_tensor for division
+            h = clipped_sin(W @ projected_x + rand_b) # Use projected_x for matrix multiplication
             return scaling_factors * h
 
     else:
@@ -97,8 +109,7 @@ def get_astro_responses(query_layer, key_layer, nhead, phi):
     Returns:
         Tensor of shape (n_sample, ntokens, ntokens) representing astro_pulses.
     """
-    # Get the device of the query_layer
-    device = query_layer.device
+
 
     rfa_normalized_keys = phi(key_layer[nhead])
     transformed_queries = phi(query_layer)
