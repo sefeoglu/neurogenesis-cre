@@ -32,3 +32,14 @@ Neurogenesis has been used to provide natural memorization of learnt model with 
 
 
 ## Related Works
+````
+@inproceedings{draelos_2017,
+  author={Timothy J. Draelos and Nadine E. Miner and Christopher C. Lamb and Jonathan A. Cox and Craig M. Vineyard and Kristofor D. Carlson and William M. Severa and Conrad D. James and James B. Aimone},
+  title={Neurogenesis deep learning: Extending deep networks to accommodate new classes},
+  year={2017},
+  cdate={1483228800000},
+  pages={526-533},
+  url={https://doi.org/10.1109/IJCNN.2017.7965898},
+  booktitle={IJCNN}
+}
+````
