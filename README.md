@@ -1,4 +1,4 @@
-# neurogenesis-cre
+# Neurogenesis for Continual Relation Extraction within Mixture of Task Expert Architecture
 Integration of neurogenesis for continual relation extraction utilizing BERT models.
 Neurogenesis has been used to provide natural memorization of learnt model with asteroid regularize Q and K.
 This work is fully application of neurogenesis during continual relation extraction along with BERT-Large.
