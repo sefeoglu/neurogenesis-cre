@@ -29,7 +29,11 @@ Neurogenesis has been used to provide natural memorization of learnt model with 
 ````
 
 ## How it works
-
+```bash
+cd src/models/
+python train_bert.py
+python test_bet.py
+```
 
 ## Related Works
 ````
