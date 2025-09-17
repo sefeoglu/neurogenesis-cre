@@ -1,5 +1,6 @@
 # neurogenesis-cre
-Integration of neurogenesis for continual relation extraction
+Integration of neurogenesis for continual relation extraction utilizing BERT models.
+Neurogenesis has been used to provide natural memorization of learnt model with asteroid regularize Q and K.
 
 
 ## Usage and Samples
