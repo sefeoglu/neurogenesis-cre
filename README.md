@@ -9,6 +9,7 @@ We also introduce a mixture of tasks aproach. Each task task models has neurogen
  * Full Continual Relation Extraction
  * Continual Relation Extraction with Mixture of Task Experts and Neurogenesis
 
+
 ## Folder Hierarchy
 ````bash 
 .
