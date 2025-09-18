@@ -7,7 +7,7 @@ We also introduce a mixture of tasks aproach. Each task task models has neurogen
 Note: This work is intended for paper submission, and the PhD thesis will be submitted in November. Use of any part requires proper copyright acknowledgment.
 ## Usage and Samples
  * Full Continual Relation Extraction
- * Few Shot Continual Relation Extraction
+ * Continual Relation Extraction with Mixture of Task Experts and Neurogenesis
 
 ## Folder Hierarchy
 ````bash 
