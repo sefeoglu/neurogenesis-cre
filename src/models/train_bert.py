@@ -1,21 +1,30 @@
 
+import random
+
+import numpy as np
 import torch
+from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score
 from transformers import BertTokenizer
-import random
-import numpy as np
-def set_seed(seed: int):
+
+
+def set_seed(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
 
 set_seed(42)
+
+
+def get_device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, task_id, patience=3):
     """
@@ -37,8 +46,9 @@ def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, t
         train_hist: Training history containing loss, accuracy, and learning rate for each epoch.
     """
     tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
-    model = model.to("cuda")
-    optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)  # Adjust learning rate
+    device = get_device()
+    model = model.to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -59,9 +69,9 @@ def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, t
         train_loader_tqdm = tqdm(train_loader, desc="Training", leave=False)
         for batch in train_loader_tqdm:
             optimizer.zero_grad()
-            input_ids = batch['input_ids'].to("cuda")
-            attention_mask = batch['attention_mask'].to("cuda")
-            labels = batch['label'].to("cuda")
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            labels = batch['label'].to(device)
 
             outputs = model(input_ids, attention_mask)
             logits = outputs
@@ -82,9 +92,9 @@ def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, t
         val_loader_tqdm = tqdm(val_loader, desc="Validation", leave=False)
         with torch.no_grad():
             for batch in val_loader_tqdm:
-                input_ids = batch['input_ids'].to("cuda")
-                attention_mask = batch['attention_mask'].to("cuda")
-                labels = batch['label'].to("cuda")
+                input_ids = batch['input_ids'].to(device)
+                attention_mask = batch['attention_mask'].to(device)
+                labels = batch['label'].to(device)
 
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                 logits = outputs

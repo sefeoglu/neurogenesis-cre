@@ -61,23 +61,42 @@ class CustomBERTEncoderBlock(nn.Module):
         return x, key, query, value
 
 
-class BertForSequenceClassification_Neuro(PreTrainedModel): # Inherit from PreTrainedModel
-    def __init__(self, config, pretrained_model_name='bert-large-uncased', num_classes=8, ff_hidden_size=2048, dropout=0.1, use_custom_encoder=True, neuro_genesis=True, phi='performer'):
+class BertForSequenceClassification_Neuro(PreTrainedModel):
+    def __init__(
+        self,
+        config,
+        pretrained_model_name='bert-large-uncased',
+        num_classes=8,
+        ff_hidden_size=2048,
+        dropout=0.1,
+        use_custom_encoder=True,
+        neuro_genesis=True,
+        phi='performer',
+        num_experts=4,
+    ):
 
-        super(BertForSequenceClassification_Neuro, self).__init__(config) # Pass config to super()
-        self.bert = BertModel.from_pretrained(pretrained_model_name, config=config) # Pass config to BertModel
+        super(BertForSequenceClassification_Neuro, self).__init__(config)
+        self.bert = BertModel.from_pretrained(pretrained_model_name, config=config)
         self.use_custom_encoder = use_custom_encoder
         self.num_labels = num_classes
+        self.num_experts = max(1, num_experts)
         embed_size = self.bert.config.hidden_size
 
         if use_custom_encoder:
-            self.custom_encoder = CustomBERTEncoderBlock(embed_size, ff_hidden_size, dropout,neurogenesis=neurogenesis, phi=phi)
+            self.custom_encoder = CustomBERTEncoderBlock(embed_size, ff_hidden_size, dropout, neurogenesis=neurogenesis, phi=phi)
 
         self.classifier = nn.Linear(embed_size, num_classes)
+        self.router = nn.Linear(embed_size, self.num_experts)
+        self.experts = nn.ModuleList([nn.Linear(embed_size, num_classes) for _ in range(self.num_experts)])
         self.dropout = nn.Dropout(dropout)
-   
 
-    def forward(self, input_ids, attention_mask=None, token_type_ids=None):
+    def _mixture_of_experts(self, hidden_states):
+        router_logits = self.router(hidden_states)
+        router_probs = torch.softmax(router_logits, dim=-1)
+        expert_logits = torch.stack([expert(hidden_states) for expert in self.experts], dim=0)
+        return torch.sum(router_probs.unsqueeze(-1) * expert_logits, dim=0), router_probs
+
+    def forward(self, input_ids, attention_mask=None, token_type_ids=None, return_router_probs=False):
         bert_output = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -92,8 +111,15 @@ class BertForSequenceClassification_Neuro(PreTrainedModel): # Inherit from PreTr
             pooled_output = sequence_output[:, 0, :]
 
         pooled_output = self.dropout(pooled_output)
-        logits = self.classifier(pooled_output)
 
-        if self.use_custom_encoder:
+        if self.num_experts > 1:
+            logits, router_probs = self._mixture_of_experts(pooled_output)
+            if return_router_probs:
+                return logits, router_probs
             return logits
+
+        logits = self.classifier(pooled_output)
+        if return_router_probs:
+            router_probs = torch.ones(logits.size(0), 1, device=logits.device)
+            return logits, router_probs
         return logits
