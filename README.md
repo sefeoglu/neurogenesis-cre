@@ -1,5 +1,11 @@
 # Neurogenesis for Continual Relation Extraction
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C.svg)](https://pytorch.org/)
+[![Transformers](https://img.shields.io/badge/🤗-Transformers-FFD21F.svg)](https://huggingface.co/docs/transformers/)
+[![Status](https://img.shields.io/badge/Status-Research%20Project-orange.svg)](README.md)
+
 This repository studies continual relation extraction with a BERT-based backbone, neurogenesis-inspired attention, and a mixture-of-tasks / mixture-of-experts classification layer. The goal is to support incremental learning across multiple relation-extraction tasks while preserving useful knowledge transfer and reducing destructive weight overwriting.
 
 ## Overview
@@ -65,10 +71,16 @@ The exploratory notebook for the continual mixture-of-tasks design is in:
 
 ## Requirements
 
-Install the required Python dependencies before running the training pipeline. A typical setup is:
+Install the required Python dependencies before running the training pipeline:
 
 ```bash
-pip install torch transformers scikit-learn tqdm numpy pandas
+python -m pip install -r requirements.txt
+```
+
+A minimal manual install is also possible:
+
+```bash
+pip install torch transformers scikit-learn tqdm numpy pandas scipy
 ```
 
 For the notebook-based workflow, the environment can also require additional Hugging Face tooling and GPU support depending on the execution environment.
