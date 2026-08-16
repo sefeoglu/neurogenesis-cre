@@ -42,12 +42,12 @@ def prepare_labels(records):
     return sentences, encoded_labels, label_to_int
 
 
-def build_model(num_labels, neuro_genesis, neuro_phi):
-    tokenizer = BertTokenizer.from_pretrained("bert-large-uncased")
-    config = BertConfig.from_pretrained("bert-large-uncased", num_labels=num_labels)
+def build_model(num_labels, neuro_genesis, neuro_phi, model_name="bert-large-uncased"):
+    tokenizer = BertTokenizer.from_pretrained(model_name)
+    config = BertConfig.from_pretrained(model_name, num_labels=num_labels)
     model = BertForSequenceClassification_Neuro(
         config,
-        pretrained_model_name="bert-large-uncased",
+        pretrained_model_name=model_name,
         num_classes=num_labels,
         use_custom_encoder=True,
         neuro_genesis=neuro_genesis,
@@ -56,7 +56,7 @@ def build_model(num_labels, neuro_genesis, neuro_phi):
     return tokenizer, model
 
 
-def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_list, neuro_phi):
+def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_list, neuro_phi, model_name="bert-large-uncased"):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -70,7 +70,7 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_
             val_sentences, val_labels, _ = prepare_labels(val_prepared)
             test_sentences, test_labels, _ = prepare_labels(test_prepared)
 
-            tokenizer, model = build_model(len(label_to_int), neuro_genesis, neuro_phi)
+            tokenizer, model = build_model(len(label_to_int), neuro_genesis, neuro_phi, model_name=model_name)
 
             train_dataset = RelationDataset(train_sentences, train_labels, tokenizer, max_length=512)
             val_dataset = RelationDataset(val_sentences, val_labels, tokenizer, max_length=512)
@@ -103,10 +103,11 @@ def main(out_dir, dataset_path, neuro_genesis, baseline_name, epoch_list, batch_
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train relation extraction models with neurogenesis.")
-    parser.add_argument("--dataset-path", type=str, default="/content/tacred/final")
+    parser.add_argument("--dataset-path", type=str, default="./data/tacred/final")
     parser.add_argument("--output-dir", type=str, default="./results/neurogenesis")
     parser.add_argument("--phi", type=str, default="performer", choices=["performer", "cosine", "linear", "truncated_performer", "positive_cosine", "dima_sin"])
     parser.add_argument("--baseline-name", type=str, default="bert_large_performer_neurogenesis")
+    parser.add_argument("--model-name", type=str, default="bert-large-uncased", help="Base Hugging Face model to load for the BERT encoder")
     parser.add_argument("--epochs", type=int, nargs="+", default=[1])
     parser.add_argument("--batch-sizes", type=int, nargs="+", default=[16])
     parser.add_argument("--neuro-genesis", action="store_true", default=True)
@@ -124,4 +125,5 @@ if __name__ == "__main__":
         epoch_list=args.epochs,
         batch_list=args.batch_sizes,
         neuro_phi=args.phi,
+        model_name=args.model_name,
     )

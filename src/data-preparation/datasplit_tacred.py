@@ -2,15 +2,31 @@ import sys
 import os
 import json
 import random
+import argparse
 import configparser
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+from pathlib import Path
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 PACKAGE_PARENT = '.'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-PREFIX_PATH = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-2]) + "/"
-print(PREFIX_PATH)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def resolve_config_path(config_path: str | None = None) -> Path:
+    if config_path is not None:
+        return Path(config_path).expanduser().resolve()
+    return PROJECT_ROOT / 'config.ini'
+
+
+def resolve_data_path(value: str, fallback: Path) -> str:
+    if not value:
+        return str(fallback)
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = (PROJECT_ROOT / path).resolve()
+    return str(path)
 
 def read_json(path):
     """ Read a json file from the given path."""
@@ -175,12 +191,20 @@ def main(all_train_data_path, all_dev_data_path, all_test_data_path, all_tasks_p
             prepare_instructions(task_train_data, task_dev_data, task_test_data, task_relations, task_relations,task_id, run_id, out_folder, prompt_type)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Prepare TACRED task splits.")
+    parser.add_argument("--config", type=str, default=str(resolve_config_path()), help="Path to config.ini")
+    parser.add_argument("--data-root", type=str, default=str(PROJECT_ROOT / 'data' / 'tacred'), help="Root directory for TACRED data")
+    parser.add_argument("--output-dir", type=str, default=str(PROJECT_ROOT / 'data' / 'tacred' / 'final'), help="Directory for generated task files")
+    args = parser.parse_args()
 
     config = configparser.ConfigParser()
-    config.read(PREFIX_PATH+'config.ini')
-    all_train_data  = "/Users/sefika/phd_projects/neurogenesis-cre/data/tacred/data/train.json"
-    all_test_data = "/Users/sefika/phd_projects/neurogenesis-cre/data/tacred/data/test.json"
-    all_dev_data = "/Users/sefika/phd_projects/neurogenesis-cre/data/tacred/data/dev.json"
-    all_tasks = "/Users/sefika/phd_projects/neurogenesis-cre/data/tacred/final/tacred_tasks.json"
-    out_folder =  "tacred/final/"
+    config.read(args.config)
+
+    default_data_root = Path(args.data_root).expanduser().resolve()
+    all_train_data = resolve_data_path(config.get('DATA', 'train_path', fallback=str(default_data_root / 'data' / 'train.json')), default_data_root / 'data' / 'train.json')
+    all_test_data = resolve_data_path(config.get('DATA', 'test_path', fallback=str(default_data_root / 'data' / 'test.json')), default_data_root / 'data' / 'test.json')
+    all_dev_data = resolve_data_path(config.get('DATA', 'dev_path', fallback=str(default_data_root / 'data' / 'dev.json')), default_data_root / 'data' / 'dev.json')
+    all_tasks = resolve_data_path(config.get('DATA', 'tasks_path', fallback=str(default_data_root / 'final' / 'tacred_tasks.json')), default_data_root / 'final' / 'tacred_tasks.json')
+    out_folder = str(Path(args.output_dir).expanduser().resolve()) + os.sep
+
     main(all_train_data, all_dev_data, all_test_data, all_tasks, out_folder)

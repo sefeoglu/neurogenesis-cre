@@ -26,7 +26,7 @@ def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, task_id, patience=3):
+def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, task_id, patience=3, pretrained_model_name="bert-large-uncased"):
     """
     Trains a BERT-based model on a given dataset with validation, early stopping, and best model loading.
 
@@ -39,13 +39,14 @@ def train_model(epochs, batch_size, val_dataset, train_dataset, model, run_id, t
         run_id (str): Unique identifier for the training run.
         task_id (str): Task identifier for model saving.
         patience (int): Number of epochs to wait for validation loss improvement before stopping.
+        pretrained_model_name (str): Base Hugging Face model to load the tokenizer from.
 
     Returns:
         model: The best trained model (based on validation loss).
         tokenizer: The tokenizer associated with the model.
         train_hist: Training history containing loss, accuracy, and learning rate for each epoch.
     """
-    tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+    tokenizer = BertTokenizer.from_pretrained(pretrained_model_name)
     device = get_device()
     model = model.to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
