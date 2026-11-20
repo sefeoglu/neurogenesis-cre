@@ -129,6 +129,6 @@ The neurogenesis idea follows the work by Draelos et al.:
 
 ## License
 
-This project is distributed under the license in [LICENSE](LICENSE).
+This project is distributed under the MIT license in [LICENSE](LICENSE).
 
 > The code is intended for research and experimentation. Please cite the relevant work and acknowledge the repository appropriately when reusing or extending the implementation.
